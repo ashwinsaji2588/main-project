@@ -141,47 +141,80 @@ def main():
     fs = 500
     num_electrodes = 21
 
-    
+    # Initialize DataFrames for results
+    results_df_1 = pd.DataFrame()  # For files ending with '_1.edf'
+    results_df_2 = pd.DataFrame()  # For files ending with '_2.edf'
 
-    results_df1 = pd.DataFrame(columns=['Patient_ID'] + [f'RP_Theta_{i}' for i in range(1, num_electrodes + 1)])
-    results_df2 = pd.DataFrame(columns=['Patient_ID'] + [f'RP_Theta_{i}' for i in range(1, num_electrodes + 1)])
-
+    # Process each file
     for file_path in file_paths:
-        # Check if the file name ends with "_1.edf" or "_2.edf"
-        if file_path.endswith("_1.edf"):
-            eeg_data_set1 = read_edf_file(file_path)
-            rp_theta_list = []
-            # Process dataset 1
-            for electrode in range(0, num_electrodes):
-                eeg_data = eeg_data_set1[electrode,:]
-                absolute_power_theta = calculate_absolute_power_theta(eeg_data, fs=fs)
-                absolute_power_alpha = calculate_absolute_power_alpha(eeg_data, fs=fs)
-                absolute_power_beta = calculate_absolute_power_beta(eeg_data, fs=fs)
-                absolute_power_gamma = calculate_absolute_power_gamma(eeg_data, fs=fs)
-                rp_theta = calculate_relative_power(absolute_power_theta, absolute_power_alpha, absolute_power_beta,
-                                                    absolute_power_gamma)
-                rp_theta_list.append(rp_theta)
-            row_data = {'Patient_ID': file_path, **{f'RP_Theta_{i}': val for i, val in enumerate(rp_theta_list, start=1)}}
-            results_df1 = results_df1._append(row_data, ignore_index=True)
+        if file_path.endswith('_1.edf'):
+            try:
+                # Extract file name from file path and remove extension
+                file_name = os.path.splitext(os.path.basename(file_path))[0]
 
-        elif file_path.endswith("_2.edf"):
-            eeg_data_set2 = read_edf_file(file_path)
-            rp_theta_list = []
-            # Process dataset 2
-            for electrode in range(0, num_electrodes):
-                eeg_data = eeg_data_set2[electrode,:]
-                absolute_power_theta = calculate_absolute_power_theta(eeg_data, fs=fs)
-                absolute_power_alpha = calculate_absolute_power_alpha(eeg_data, fs=fs)
-                absolute_power_beta = calculate_absolute_power_beta(eeg_data, fs=fs)
-                absolute_power_gamma = calculate_absolute_power_gamma(eeg_data, fs=fs)
-                rp_theta = calculate_relative_power(absolute_power_theta, absolute_power_alpha, absolute_power_beta,
-                                                    absolute_power_gamma)
-                rp_theta_list.append(rp_theta)
-            row_data = {'Patient_ID': file_path, **{f'RP_Theta_{i}': val for i, val in enumerate(rp_theta_list, start=1)}}
-            results_df2 = results_df2._append(row_data, ignore_index=True)
+                # Read EEG data
+                eeg_data = mne.io.read_raw_edf(file_path, preload=False)
+                channel_names = eeg_data.ch_names
+                
+                # Process EEG data
+                rp_theta_list = []  # List to store rp_theta values for dataset
+                for electrode in range(num_electrodes):
+                    eeg_data_electrode = eeg_data.get_data()[electrode, :]
+                    absolute_power_theta = calculate_absolute_power_theta(eeg_data_electrode, fs=fs)
+                    absolute_power_alpha = calculate_absolute_power_alpha(eeg_data_electrode, fs=fs)
+                    absolute_power_beta = calculate_absolute_power_beta(eeg_data_electrode, fs=fs)
+                    absolute_power_gamma = calculate_absolute_power_gamma(eeg_data_electrode, fs=fs)
+                    rp_theta = calculate_relative_power(absolute_power_theta, absolute_power_alpha, absolute_power_beta,
+                                                        absolute_power_gamma)
+                    rp_theta_list.append(rp_theta)
 
-    results_df1.to_csv('rp_theta_relaxed.csv', index=False)  # Update this with the path to your local results folder
-    results_df2.to_csv('rp_theta_stressed.csv', index=False)  # Update this with the path to your local results folder
+                # Construct row data
+                row_data = {'Patient_ID': file_name, **{channel_name: val for channel_name, val in zip(channel_names, rp_theta_list)}}
+                results_df_1 = results_df_1._append(row_data, ignore_index=True)
+
+            except Exception as e:
+                print(f"Error processing file {file_path}: {str(e)}")
+
+        elif file_path.endswith('_2.edf'):
+            try:
+                # Extract file name from file path and remove extension
+                file_name = os.path.splitext(os.path.basename(file_path))[0]
+
+                # Read EEG data
+                eeg_data = mne.io.read_raw_edf(file_path, preload=False)
+                channel_names = eeg_data.ch_names
+                
+                # Process EEG data
+                rp_theta_list = []  # List to store rp_theta values for dataset
+                for electrode in range(num_electrodes):
+                    eeg_data_electrode = eeg_data.get_data()[electrode, :]
+                    absolute_power_theta = calculate_absolute_power_theta(eeg_data_electrode, fs=fs)
+                    absolute_power_alpha = calculate_absolute_power_alpha(eeg_data_electrode, fs=fs)
+                    absolute_power_beta = calculate_absolute_power_beta(eeg_data_electrode, fs=fs)
+                    absolute_power_gamma = calculate_absolute_power_gamma(eeg_data_electrode, fs=fs)
+                    rp_theta = calculate_relative_power(absolute_power_theta, absolute_power_alpha, absolute_power_beta,
+                                                        absolute_power_gamma)
+                    rp_theta_list.append(rp_theta)
+
+                # Construct row data
+                row_data = {'Patient_ID': file_name, **{channel_name: val for channel_name, val in zip(channel_names, rp_theta_list)}}
+                results_df_2 = results_df_2._append(row_data, ignore_index=True)
+
+            except Exception as e:
+                print(f"Error processing file {file_path}: {str(e)}")
+
+    # Write results to CSV files
+    try:
+        results_df_1.to_csv('Features/relaxed_theta_power.csv', index=False)  # For files ending with '_1.edf'
+        print("CSV file for _1.edf files created successfully.")
+    except Exception as e:
+        print(f"Error writing CSV file for _1.edf files: {str(e)}")
+
+    try:
+        results_df_2.to_csv('Features/stressed_theta_power.csv', index=False)  # For files ending with '_2.edf'
+        print("CSV file for _2.edf files created successfully.")
+    except Exception as e:
+        print(f"Error writing CSV file for _2.edf files: {str(e)}")
 
 if __name__ == "__main__":
     main()
