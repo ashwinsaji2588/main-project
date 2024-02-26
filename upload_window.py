@@ -12,29 +12,25 @@ def open_upload_window(user_type):
     # Set the initial size of the window
     app.geometry("400x400")
 
-    # Create a frame to contain the widgets
-    frame = tk.Frame(app)
-    frame.pack(fill=tk.BOTH, expand=True)
-
-    # Create a canvas to hold the frame with scrolling ability
-    canvas = tk.Canvas(frame)
+    # Create a Canvas widget
+    canvas = tk.Canvas(app)
     canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
     # Add a scrollbar to the canvas
-    scrollbar = tk.Scrollbar(frame, orient=tk.VERTICAL, command=canvas.yview)
+    scrollbar = tk.Scrollbar(app, orient=tk.VERTICAL, command=canvas.yview)
     scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+    # Configure the canvas to use the scrollbar
     canvas.configure(yscrollcommand=scrollbar.set)
 
-    # Function to adjust the scroll region of the canvas
-    def _on_canvas_configure(event):
+    # Create a frame to contain the widgets
+    frame = tk.Frame(canvas)
+    canvas.create_window((0, 0), window=frame, anchor=tk.NW)
+
+    def on_configure(event):
         canvas.configure(scrollregion=canvas.bbox("all"))
 
-    # Configure canvas scroll region when the frame size changes
-    canvas.bind("<Configure>", _on_canvas_configure)
-
-    # Create a frame inside the canvas to hold the widgets
-    inner_frame = tk.Frame(canvas)
-    canvas.create_window((0, 0), window=inner_frame, anchor=tk.NW)
+    canvas.bind("<Configure>", on_configure)
 
     def upload_files():
         file_paths = filedialog.askopenfilenames()
@@ -54,7 +50,7 @@ def open_upload_window(user_type):
         # Define a function to run subprocesses asynchronously
         def run_subprocesses():
             processes = []
-            for py_file in ['hfd_relaxed.py', 'hfd_stressed.py','psd_calc.py','relative.py']:
+            for py_file in ['hfd_relaxed.py', 'hfd_stressed.py','psd_calc.py','relative_theta.py','relative_alpha.py']:
                 processes.append(subprocess.Popen(['python', py_file] + list(app.uploaded_files)))
             
             # Wait for all subprocesses to finish
@@ -74,31 +70,24 @@ def open_upload_window(user_type):
 
         
     # Create a button to upload files
-    upload_button = tk.Button(inner_frame, text="Upload Files", command=upload_files, width=20, height=2)
-    upload_button.pack(pady=10)
+    upload_button = tk.Button(frame, text="Upload Files", command=upload_files, width=20, height=2)
+    upload_button.grid(row=0, column=0, pady=10)
 
     # Create a label to display file paths
-    label = tk.Label(inner_frame, text="")
-    label.pack()
+    label = tk.Label(frame, text="")
+    label.grid(row=1, column=0)
 
     # Create a button to build the model (initially disabled)
-    build_model_button = tk.Button(inner_frame, text="Build Model", command=build_model, width=20, height=2, state="disabled")
-    build_model_button.pack(pady=10)
+    build_model_button = tk.Button(frame, text="Build Model", command=build_model, width=20, height=2, state="disabled")
+    build_model_button.grid(row=2, column=0, pady=10)
     
     # Create a button to view results (initially disabled)
-    view_results_button = tk.Button(inner_frame, text="View Results", command=view_results, width=20, height=2, state="normal")
-    view_results_button.pack(pady=10)
+    view_results_button = tk.Button(frame, text="View Results", command=view_results, width=20, height=2, state="normal")
+    view_results_button.grid(row=3, column=0, pady=10)
     
     # Create a label to show status
-    status_label = tk.Label(inner_frame, text="")
-    status_label.pack()
-
-    # Update scroll region when the inner frame is resized
-    def on_inner_frame_configure(event):
-        canvas.configure(scrollregion=canvas.bbox("all"))
-
-    inner_frame.bind("<Configure>", on_inner_frame_configure)
+    status_label = tk.Label(frame, text="")
+    status_label.grid(row=4, column=0)
 
     # Start the Tkinter event loop
     app.mainloop()
-
