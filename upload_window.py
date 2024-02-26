@@ -82,7 +82,7 @@ def open_upload_window(user_type):
     label.pack()
 
     # Create a button to build the model (initially disabled)
-    build_model_button = tk.Button(inner_frame, text="Build Model", command=build_model, width=20, height=2, state="disabled")
+    build_model_button = tk.Button(inner_frame, text="Build Model", command=build_model, width=20, height=2, state="normal")
     build_model_button.pack(pady=10)
     
     # Create a button to view results (initially disabled)
