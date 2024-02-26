@@ -78,8 +78,13 @@ def open_upload_window(user_type):
     label.grid(row=1, column=0)
 
     # Create a button to build the model (initially disabled)
+<<<<<<< HEAD
     build_model_button = tk.Button(frame, text="Build Model", command=build_model, width=20, height=2, state="disabled")
     build_model_button.grid(row=2, column=0, pady=10)
+=======
+    build_model_button = tk.Button(inner_frame, text="Build Model", command=build_model, width=20, height=2, state="normal")
+    build_model_button.pack(pady=10)
+>>>>>>> 5c6b0562496751c20b3d518a9043bfaba3a39167
     
     # Create a button to view results (initially disabled)
     view_results_button = tk.Button(frame, text="View Results", command=view_results, width=20, height=2, state="normal")
