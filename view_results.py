@@ -1,10 +1,9 @@
 import tkinter as tk
-import matplotlib.pyplot as plt
 import pandas as pd
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 
-def generate_chart(electrodes,label, stressed_hfd_df, relaxed_hfd_df):
+def generate_chart(electrodes, label, stressed, relaxed):
     # Create a new window for the chart
     chart_window = tk.Toplevel()
     chart_window.title(f"Charts for Label: {label}")
@@ -14,23 +13,20 @@ def generate_chart(electrodes,label, stressed_hfd_df, relaxed_hfd_df):
 
     # Create a figure for the chart
     fig = Figure(figsize=(8, 6), dpi=100)
-    # Get unique electrodes from the data
-    
 
     for i, electrode in enumerate(electrodes):
         # Create a subplot for each electrode
         ax = fig.add_subplot(3, 1, i+1)
 
-        # Extract HFD values for the current label and electrode from both stressed and relaxed dataframes
-       # stressed_hfd_values = stressed_hfd_df[(stressed_hfd_df['Label'] == label)].iloc[:, electrode]
-        #relaxed_hfd_values = relaxed_hfd_df[(relaxed_hfd_df['Label'] == label)].iloc[:, electrode]
-        stressed_hfd_values = stressed_hfd_df.iloc[:, electrode]
-        relaxed_hfd_values = relaxed_hfd_df.iloc[:, electrode]
+        # Extract values for the current label and electrode from both stressed and relaxed dataframes
+        stressed_values = stressed.iloc[:, electrode]
+        relaxed_values = relaxed.iloc[:, electrode]
+
         # Plot stressed state data in red
-        ax.plot(stressed_hfd_values, 'r', label='Stressed State')
+        ax.plot(stressed_values, 'r', label='Stressed State')
 
         # Plot relaxed state data in blue
-        ax.plot(relaxed_hfd_values, 'b', label='Relaxed State')
+        ax.plot(relaxed_values, 'b', label='Relaxed State')
 
         # Set plot title and labels
         ax.set_title(f'{label} for Electrode {electrode}')
@@ -57,27 +53,33 @@ def open_view_results_window():
     # Set the initial size of the window
     view_results_window.geometry("800x600")
 
-    # Add title for Higuchi Fractal Dimension
-    title_label = tk.Label(view_results_window, text="Available results", font=("Arial", 14, "bold"))
+    # Add title for Available Results
+    title_label = tk.Label(view_results_window, text="Available Results", font=("Arial", 14, "bold"))
     title_label.pack()
 
-    # Read the HFD values from CSV files
+    # Read the data from CSV files
     stressed_hfd_df = pd.read_csv("Features/stressed_hfd_values.csv")
     relaxed_hfd_df = pd.read_csv("Features/relaxed_hfd_values.csv")
     stressed_rtp_df = pd.read_csv("Features/stressed_theta_power.csv")
     relaxed_rtp_df = pd.read_csv("Features/relaxed_theta_power.csv")
+    stressed_rap_df = pd.read_csv("Features/stressed_alpha_power.csv")
+    relaxed_rap_df = pd.read_csv("Features/relaxed_alpha_power.csv")
 
-    # Get unique labels from the data
-    unique_labels = ["hfd","rp","rs","rd","ss"]
-    eh=[1,3,5]
-    et=[1,5,6]
-    # Create buttons for each unique label
-    button = tk.Button(view_results_window, text="Higuchi Fractal Dimension",
-                    command=lambda l="Higuchi Fractal Dimension": generate_chart(eh,l, stressed_hfd_df, relaxed_hfd_df))
-    button.pack()
-    button = tk.Button(view_results_window, text="Relative theta power",
-                    command=lambda l="Relative theta power": generate_chart(et,l, stressed_rtp_df, relaxed_rtp_df))
-    button.pack()
-    
+    # Define electrodes for different features
+    hfd_electrodes = [1, 3, 6]
+    rel_theta_electrodes = [1, 5, 6]
+
+    # Create buttons for each feature
+    button1 = tk.Button(view_results_window, text="Higuchi Fractal Dimension", command=lambda: generate_chart(hfd_electrodes, "Higuchi Fractal Dimension", stressed_hfd_df, relaxed_hfd_df), padx=20, pady=10)
+    button1.pack(pady=10)
+
+    button2 = tk.Button(view_results_window, text="Relative Theta Power", command=lambda: generate_chart(rel_theta_electrodes, "Relative Theta Power", stressed_rtp_df, relaxed_rtp_df), padx=20, pady=10)
+    button2.pack(pady=10)
+
+    button3 = tk.Button(view_results_window, text="Relative Alpha Power", command=lambda: generate_chart(rel_theta_electrodes, "Relative Alpha Power", stressed_rap_df, relaxed_rap_df), padx=20, pady=10)
+    button3.pack(pady=10)
+
     # Start the Tkinter event loop for the view results window
     view_results_window.mainloop()
+
+open_view_results_window()
