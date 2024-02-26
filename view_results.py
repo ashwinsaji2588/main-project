@@ -91,7 +91,8 @@ def open_view_results_window():
 
     # Define electrodes for different features
     hfd_electrodes = [1, 3, 6]
-    rel_theta_electrodes = [1, 5, 6]
+    rel_theta_electrodes = [17, 1, 2]
+    rel_alpha_electrodes = [15, 13, 19]
 
     # Create buttons for each feature
     button1 = tk.Button(view_results_window, text="Higuchi Fractal Dimension", command=lambda: generate_chart(hfd_electrodes, "Higuchi Fractal Dimension", stressed_hfd_df, relaxed_hfd_df), padx=20, pady=10)
@@ -100,7 +101,7 @@ def open_view_results_window():
     button2 = tk.Button(view_results_window, text="Relative Theta Power", command=lambda: generate_chart(rel_theta_electrodes, "Relative Theta Power", stressed_rtp_df, relaxed_rtp_df), padx=20, pady=10)
     button2.pack(pady=10)
 
-    button3 = tk.Button(view_results_window, text="Relative Alpha Power", command=lambda: generate_chart(rel_theta_electrodes, "Relative Alpha Power", stressed_rap_df, relaxed_rap_df), padx=20, pady=10)
+    button3 = tk.Button(view_results_window, text="Relative Alpha Power", command=lambda: generate_chart(rel_alpha_electrodes, "Relative Alpha Power", stressed_rap_df, relaxed_rap_df), padx=20, pady=10)
     button3.pack(pady=10)
 
     # Start the Tkinter event loop for the view results window
