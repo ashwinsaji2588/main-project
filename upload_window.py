@@ -10,7 +10,7 @@ def open_upload_window(user_type):
     app.title("File Upload GUI")
     
     # Set the initial size of the window
-    app.geometry("400x400")
+    app.geometry("1920x1080")
 
     # Create a Canvas widget
     canvas = tk.Canvas(app)
@@ -30,7 +30,7 @@ def open_upload_window(user_type):
     def on_configure(event):
         canvas.configure(scrollregion=canvas.bbox("all"))
 
-    canvas.bind("<Configure>", on_configure)
+    frame.bind("<Configure>", on_configure)
 
     def upload_files():
         file_paths = filedialog.askopenfilenames()
@@ -71,23 +71,24 @@ def open_upload_window(user_type):
         
     # Create a button to upload files
     upload_button = tk.Button(frame, text="Upload Files", command=upload_files, width=20, height=2)
-    upload_button.grid(row=0, column=0, pady=10)
+    upload_button.pack(pady=10)
 
     # Create a label to display file paths
     label = tk.Label(frame, text="")
-    label.grid(row=1, column=0)
+    label.pack()
 
     # Create a button to build the model (initially disabled)
     build_model_button = tk.Button(frame, text="Build Model", command=build_model, width=20, height=2, state="disabled")
-    build_model_button.grid(row=2, column=0, pady=10)
+    build_model_button.pack(pady=10)
     
     # Create a button to view results (initially disabled)
     view_results_button = tk.Button(frame, text="View Results", command=view_results, width=20, height=2, state="normal")
-    view_results_button.grid(row=3, column=0, pady=10)
+    view_results_button.pack(pady=10)
     
     # Create a label to show status
     status_label = tk.Label(frame, text="")
-    status_label.grid(row=4, column=0)
+    status_label.pack()
 
     # Start the Tkinter event loop
     app.mainloop()
+

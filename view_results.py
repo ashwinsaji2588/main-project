@@ -4,9 +4,33 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 
 def generate_chart(electrodes, label, stressed, relaxed):
+    # Electrode mapping dictionary
+    electrode_mapping = {
+        1: "EEG Fp1",
+        2: "EEG Fp2",
+        3: "EEG F3",
+        4: "EEG F4",
+        5: "EEG F7",
+        6: "EEG F8",
+        7: "EEG T3",
+        8: "EEG T4",
+        9: "EEG C3",
+        10: "EEG C4",
+        11: "EEG T5",
+        12: "EEG T6",
+        13: "EEG P3",
+        14: "EEG P4",
+        15: "EEG O1",
+        16: "EEG O2",
+        17: "EEG Fz",
+        18: "EEG Cz",
+        19: "EEG Pz",
+        20: "EEG A2-A1"
+    }
+
     # Create a new window for the chart
     chart_window = tk.Toplevel()
-    chart_window.title(f"Charts for Label: {label}")
+    chart_window.title(f"Charts for {label}")
 
     # Set the size of the window
     chart_window.geometry("800x600")
@@ -29,7 +53,7 @@ def generate_chart(electrodes, label, stressed, relaxed):
         ax.plot(relaxed_values, 'b', label='Relaxed State')
 
         # Set plot title and labels
-        ax.set_title(f'{label} for Electrode {electrode}')
+        ax.set_title(f'{label} for {electrode_mapping[electrode]}')  # Use electrode mapping dictionary to get electrode name
         ax.set_xlabel('Subjects')
         ax.set_ylabel(label)
 
@@ -81,5 +105,3 @@ def open_view_results_window():
 
     # Start the Tkinter event loop for the view results window
     view_results_window.mainloop()
-
-open_view_results_window()
