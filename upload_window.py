@@ -26,7 +26,7 @@ def open_upload_window(user_type):
         status_label.config(text="Finding HFD values. Please wait...")
         
         # Call hfd_relaxed.py and hfd_stressed.py with uploaded file paths asynchronously
-        for py_file in ['hfd_relaxed.py', 'hfd_stressed.py']:
+        for py_file in ['hfd_relaxed.py', 'hfd_stressed.py','psd_calc.py','relative.py']:
             subprocess.Popen(['python', py_file] + list(app.uploaded_files))
         status_label.config(text="Model calculation initiated!")  # Update status label
         

@@ -1,3 +1,5 @@
+#main.py
+
 from user_selection_window import open_selection_window
 
 def main():

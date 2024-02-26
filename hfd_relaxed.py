@@ -2,7 +2,7 @@ import sys
 import os
 import pandas as pd
 import hfda
-from pyedflib import highlevel
+import mne
 
 def calculate_hfd_for_files(file_paths, k_max):
     hfd_values = {}
@@ -12,23 +12,27 @@ def calculate_hfd_for_files(file_paths, k_max):
             print(f"File not found: {file_path}")
             continue
         
-        # Check if the file name ends with "_1.edf"
+        # Check if the file name ends with "_2.edf"
         if not file_path.endswith("_1.edf"):
-            print(f"Skipping file: {file_path}. File name doesn't end with '_1.edf'.")
+            print(f"Skipping file: {file_path}. File name doesn't end with '_2.edf'.")
             continue
 
-        # Load signals from the EDF file
-        signals, signal_headers, header = highlevel.read_edf(file_path)
+        # Load signals from the EDF file using mne
+        raw = mne.io.read_raw_edf(file_path, preload=True)
+        data = raw.get_data()
 
-        # Calculate HFD for each signal
-        for i, signal in enumerate(signals):
-            D = hfda.measure(signal, k_max)
+        # Extract EEG data and sampling frequency
+        eeg_data, sfreq = data[:20], raw.info['sfreq']  # Take first 20 channels
+        
+        # Calculate HFD for each electrode
+        for i, channel in enumerate(raw.ch_names[:20]):
+            D = hfda.measure(eeg_data[i], k_max)
 
             # Store HFD value
             file_name = os.path.basename(file_path)
             if file_name not in hfd_values:
-                hfd_values[file_name] = []
-            hfd_values[file_name].append(D)
+                hfd_values[file_name] = {}
+            hfd_values[file_name][channel] = D
 
     return hfd_values
 
@@ -50,8 +54,13 @@ def main():
     # Convert dictionary to DataFrame
     df = pd.DataFrame.from_dict(hfd_results, orient='index')
 
-    # Write DataFrame to CSV
-    csv_file_path = 'relaxed_hfd_values.csv'
+    # Define the path to the Features folder
+    features_folder = 'Features'
+    if not os.path.exists(features_folder):
+        os.makedirs(features_folder)
+
+    # Write DataFrame to CSV in the Features folder
+    csv_file_path = os.path.join(features_folder, 'relaxed_hfd_values.csv')
     df.to_csv(csv_file_path)
     print(f"HFD values calculated and saved to '{csv_file_path}'.")
 
